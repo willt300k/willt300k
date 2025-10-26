@@ -1,0 +1,33 @@
+name: Production Build
+
+on:
+  push:
+    branches: [main]
+
+ jobs:
+  ml-job:
+    runs-on:
+      - machine               # Required: Activates Machine.dev runners
+      - gpu=L40S              # Required: GPU type to use
+      - cpu=16                # Optional: Number of CPU cores (default varies by GPU)
+      - ram=64                # Optional: RAM in GB (default varies by GPU)
+      - architecture=x64      # Optional: x64 or arm64 (default: x64)
+      - tenancy=spot          # Optional: spot or on-demand (default: on_demand)
+      - regions=us-east-1,eu-west-1  # Optional: Comma-separated AWS regions
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Cache dependencies
+        uses: actions/cache@v3
+        with:
+          path: ~/.cache
+          key: ${{ runner.os }}-deps-${{ hashFiles('**/lockfile') }}
+
+      - name: Build application
+        run: |
+          # High-performance build using all cores
+          make -j16 release
+
+      - name: Run benchmarks
+        run: |
+          ./run-benchmarks.sh
