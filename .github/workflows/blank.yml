@@ -1,0 +1,10 @@
+name: GPU Workflow
+on: [push]
+jobs:
+ build:
+   runs-on: gpu-runner
+   steps:
+     - name: Checkout code
+       uses: actions/checkout@v2
+     - name: Run ML model
+       run: python train_model.py
